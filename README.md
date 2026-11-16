@@ -317,11 +317,20 @@ All timestamps in responses and logs are recorded in **UTC**:
 
 ### Screenshots
 
-- **Swagger UI (`/docs`):** [`docs/screenshots/swagger_docs.png`](docs/screenshots/swagger_docs.png)
-- **Live Published Mastodon Status:** [`docs/screenshots/mastodon_live.png`](docs/screenshots/mastodon_live.png)
-- **Live Published GitHub Gist:** [`docs/screenshots/github_gist_live.png`](docs/screenshots/github_gist_live.png)
-- **Live Published DEV.to Article:** [`docs/screenshots/devto_live.png`](docs/screenshots/devto_live.png)
-- **Live Published Hugging Face Discussion:** [`docs/screenshots/huggingface_live.png`](docs/screenshots/huggingface_live.png)
+#### Swagger UI (`/docs`)
+![Swagger UI](docs/screenshots/swagger_docs.png)
+
+#### Live Published Hugging Face Discussion
+![Hugging Face Live Discussion](docs/screenshots/huggingface_live.png)
+
+#### Live Published Mastodon Status
+![Mastodon Live Status](docs/screenshots/mastodon_live.png)
+
+#### Live Published GitHub Gist
+![GitHub Gist Live](docs/screenshots/github_gist_live.png)
+
+#### Live Published DEV.to Article
+![DEV.to Live Article](docs/screenshots/devto_live.png)
 
 ---
 
