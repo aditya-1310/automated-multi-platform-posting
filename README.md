@@ -4,6 +4,9 @@ A FastAPI service that validates a short marketing message containing a single c
 
 Built for the **Dxora Technologies / Chivox AI Python Practical Test**.
 
+- **Live Deployed Swagger UI (`/docs`):** https://automated-multi-platform-posting-nine.vercel.app/docs
+- **Live OpenAPI Schema (`/openapi.json`):** https://automated-multi-platform-posting-nine.vercel.app/openapi.json
+
 ---
 
 ## 1. Architecture Overview
@@ -249,12 +252,12 @@ curl -X POST http://localhost:4000/posting \
     },
     {
       "platform": "Hugging Face",
-      "status": "failed",
-      "posted_url": null,
-      "public_access": false,
-      "date": null,
-      "time": null,
-      "error": "Not configured: missing HF_TOKEN"
+      "status": "success",
+      "posted_url": "https://huggingface.co/datasets/bhadade/automated-posting/discussions/2",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "19:15:48",
+      "error": null
     },
     {
       "platform": "Discord",
@@ -302,14 +305,14 @@ Response (`HTTP 422`):
 All timestamps in responses and logs are recorded in **UTC**:
 
 ```text
-2026-11-16T18:56:21Z INFO posting Configured platforms: Mastodon, GitHub Gist, DEV.to
-2026-11-16T18:56:41Z INFO posting platform=Telegram status=failed duration_ms=0 url=None error=Not configured: missing TELEGRAM_BOT_TOKEN
-2026-11-16T18:56:41Z INFO posting platform=Bluesky status=failed duration_ms=0 url=None error=Not configured: missing BLUESKY_APP_PASSWORD
-2026-11-16T18:56:41Z INFO posting platform=Hugging Face status=failed duration_ms=0 url=None error=Not configured: missing HF_TOKEN
-2026-11-16T18:56:41Z INFO posting platform=Discord status=failed duration_ms=0 url=None error=Not configured: missing DISCORD_WEBHOOK_URL
-2026-11-16T18:56:42Z INFO posting platform=DEV.to status=success duration_ms=894 url=https://dev.to/aditya_bhadade_22c4126d28/publish-once-to-multiple-platforms-with-our-fastapi-servi-o1e error=None
-2026-11-16T18:56:42Z INFO posting platform=Mastodon status=success duration_ms=1120 url=https://mastodon.social/@aditya_bhadade_1310/117627643567864426 error=None
-2026-11-16T18:56:43Z INFO posting platform=GitHub Gist status=success duration_ms=1642 url=https://gist.github.com/aditya-1310/cc4510426459e41043771f4c29d196de error=None
+2026-11-16T19:15:26Z INFO posting Configured platforms: Mastodon, GitHub Gist, DEV.to, Hugging Face
+2026-11-16T19:15:48Z INFO posting platform=Telegram status=failed duration_ms=0 url=None error=Not configured: missing TELEGRAM_BOT_TOKEN
+2026-11-16T19:15:48Z INFO posting platform=Bluesky status=failed duration_ms=0 url=None error=Not configured: missing BLUESKY_APP_PASSWORD
+2026-11-16T19:15:48Z INFO posting platform=Discord status=failed duration_ms=0 url=None error=Not configured: missing DISCORD_WEBHOOK_URL
+2026-11-16T19:15:49Z INFO posting platform=DEV.to status=success duration_ms=894 url=https://dev.to/aditya_bhadade_22c4126d28/publish-once-to-multiple-platforms-with-our-fastapi-servi-o1e error=None
+2026-11-16T19:15:49Z INFO posting platform=Mastodon status=success duration_ms=1120 url=https://mastodon.social/@aditya_bhadade_1310/117627718782830782 error=None
+2026-11-16T19:15:49Z INFO posting platform=Hugging Face status=success duration_ms=1285 url=https://huggingface.co/datasets/bhadade/automated-posting/discussions/2 error=None
+2026-11-16T19:15:50Z INFO posting platform=GitHub Gist status=success duration_ms=1642 url=https://gist.github.com/aditya-1310/fbcd0742cffc5b26f982d5ff8a90751e error=None
 ```
 
 ### Screenshots
@@ -318,6 +321,7 @@ All timestamps in responses and logs are recorded in **UTC**:
 - **Live Published Mastodon Status:** [`docs/screenshots/mastodon_live.png`](docs/screenshots/mastodon_live.png)
 - **Live Published GitHub Gist:** [`docs/screenshots/github_gist_live.png`](docs/screenshots/github_gist_live.png)
 - **Live Published DEV.to Article:** [`docs/screenshots/devto_live.png`](docs/screenshots/devto_live.png)
+- **Live Published Hugging Face Discussion:** [`docs/screenshots/huggingface_live.png`](docs/screenshots/huggingface_live.png)
 
 ---
 
