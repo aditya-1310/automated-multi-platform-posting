@@ -9,7 +9,7 @@ from typing import Annotated
 import httpx
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.config import Settings, get_settings
 from app.platforms import build_platforms
@@ -22,33 +22,47 @@ logger = logging.getLogger("posting")
 def configure_logging(log_file: str) -> None:
     if logger.handlers:
         return
-    Path(log_file).parent.mkdir(parents=True, exist_ok=True)
     formatter = logging.Formatter("%(asctime)sZ %(levelname)s %(name)s %(message)s", "%Y-%m-%dT%H:%M:%S")
     formatter.converter = time.gmtime  # log timestamps in UTC, like the API
-    for handler in (logging.StreamHandler(), logging.FileHandler(log_file, encoding="utf-8")):
+    handlers: list[logging.Handler] = [logging.StreamHandler()]
+    try:
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
+    except OSError:
+        pass  # read-only serverless filesystem (e.g. Vercel): log to stdout only
+    for handler in handlers:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+def _init_service(app: FastAPI, client: httpx.AsyncClient) -> PostingService:
     settings: Settings = get_settings()
     configure_logging(settings.log_file)
+    platforms = build_platforms(settings, client)  # built once so Bluesky/Discord caches persist
+    service = PostingService(platforms, settings.platform_timeout_seconds, settings.public_check_timeout_seconds)
+    app.state.posting_service = service
+    configured = [p.name for p in platforms if not p.missing_settings()]
+    logger.info("Configured platforms: %s", ", ".join(configured) or "none")
+    return service
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     # One shared client for all platforms. Auth is passed per request, never as a client default,
     # because the same client makes anonymous public-access checks.
     async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=5.0)) as client:
-        platforms = build_platforms(settings, client)  # built once so Bluesky/Discord caches persist
-        app.state.posting_service = PostingService(
-            platforms, settings.platform_timeout_seconds, settings.public_check_timeout_seconds
-        )
-        configured = [p.name for p in platforms if not p.missing_settings()]
-        logger.info("Configured platforms: %s", ", ".join(configured) or "none")
+        _init_service(app, client)
         yield
 
 
 def get_posting_service(request: Request) -> PostingService:
-    return request.app.state.posting_service
+    service = getattr(request.app.state, "posting_service", None)
+    if service is None:
+        # Fallback for serverless ASGI hosts that do not run lifespan hooks
+        client = httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=5.0))
+        service = _init_service(request.app, client)
+    return service
 
 
 def _error_field(loc: tuple) -> str | None:
@@ -82,6 +96,10 @@ def create_app() -> FastAPI:
     )
     app.add_exception_handler(RequestValidationError, validation_error_handler)
     app.add_exception_handler(Exception, unexpected_error_handler)
+
+    @app.get("/", include_in_schema=False)
+    async def root() -> RedirectResponse:
+        return RedirectResponse(url="/docs")
 
     @app.post(
         "/posting",
